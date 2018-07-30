@@ -1,32 +1,71 @@
 import mglearn
 import matplotlib.pyplot as plt
 
+
+def UnsupervisedLearningCancer():
+   
+   fig, axes = plt.subplot(15,2,figsize=(10, 20))
+   
+
 def UnsupervisedLearning():
    from sklearn.datasets import load_breast_cancer
-   from sklearn.model_selection import train_test_split
-   from sklearn.preprocessing import MinMaxScaler
-   from sklearn.svm import SVC
+   #from sklearn.model_selection import train_test_split
+   from sklearn.preprocessing import StandardScaler
+   from sklearn.decomposition import PCA
+   #from sklearn.svm import SVC
    cancer = load_breast_cancer()
    
-   X_train, X_test, y_train, y_test = train_test_split(cancer.data, cancer.target, random_state=0)   
+   scaler = StandardScaler()
+   scaler.fit(cancer.data)
+   X_scaled = scaler.transform(cancer.data)
    
-   svm = SVC(C=100)
-   svm.fit(X_train, y_train)
+   #Keep the two principal components of the data
+   pca = PCA(n_components=2)
+   #Fit the PCA model to breast cancer data
+   pca.fit(X_scaled)
    
-   print('Test set accuracy: {: .2f}'.format(svm.score(X_test,y_test)))
+   #Transform data onto the first two principal components
+   X_pca = pca.transform(X_scaled)
+   
+   print('Original shape: {}'.format(str(X_scaled.shape)))
+   print('Reduced shape: {}'.format(str(X_pca.shape)))
+   
+   #plot first vs second principal component, colored by class
+   #plt.figure(figsize=(8, 8))
+   mglearn.discrete_scatter(X_pca[:, 0], X_pca[:,1], cancer.target)
+   #plt.legend(cancer.target_names, loc='best')
+   #plt.gca().set_aspect('equal')
+   #plt.xlabel('First principal component')
+   #plt.ylabel('Second principal component')
+   #plt.show()
+   
+   plt.matshow(pca.components_, cmap='viridis')
+   plt.yticks([0,1], ['First component', 'Second component'])
+   plt.colorbar()
+   plt.xticks(range(len(cancer.feature_names)),cancer.feature_names,rotation=60, ha='left')
+   plt.xlabel('Feature')
+   plt.ylabel('Principal compenents')
+   plt.show()
+   
+  # X_train, X_test, y_train, y_test = train_test_split(cancer.data, cancer.target, random_state=0)   
+   
+   #svm = SVC(C=100)
+   #svm.fit(X_train, y_train)
+   
+   #print('Test set accuracy: {: .2f}'.format(svm.score(X_test,y_test)))
    
    #Preprosessing using the 0-1 scaling
-   scaler = MinMaxScaler()
-   scaler.fit(X_train)
+   #scaler = MinMaxScaler()
+   #scaler.fit(X_train)
    
-   X_train_scaled = scaler.transform(X_train)
-   X_test_scaled = scaler.transform(X_test)
+   #X_train_scaled = scaler.transform(X_train)
+   #X_test_scaled = scaler.transform(X_test)
    
    #Learning an SVM on the scaled training data
-   svm.fit(X_train_scaled, y_train)
+   #svm.fit(X_train_scaled, y_train)
    
    #Scoring on the scaled test set 
-   print('Scaled test set accuracy; {:.2F}'.format(svm.score(X_test_scaled, y_test)))
+   #print('Scaled test set accuracy; {:.2F}'.format(svm.score(X_test_scaled, y_test)))
    
 
 def UncertaintyInMultiClassClass():
