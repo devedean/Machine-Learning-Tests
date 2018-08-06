@@ -2,9 +2,19 @@ import mglearn
 import matplotlib.pyplot as plt
 
 
-def UnsupervisedLearningCancer():
+def UnsupervisedLearningFaces():
    
-   fig, axes = plt.subplot(15,2,figsize=(10, 20))
+   from sklearn.datasets import fetch_lfw_people
+   people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
+   image_shape = people.images[0].shape
+   
+   fig, axes = plt.subplots(2, 5, figsize=(15, 8), subplot_kw={'xticks': (), 'yticks': ()})
+   
+   for target, image, ax in zip(people.target, people.images, axes.ravel()):
+      ax.imshow(image)
+      ax.set_title(people.target_names[target])
+      
+   plt.show()
    
 
 def UnsupervisedLearning():
@@ -299,4 +309,4 @@ def main():
     
    
 if __name__ == '__main__':
-   UnsupervisedLearning()
+   UnsupervisedLearningFaces()
