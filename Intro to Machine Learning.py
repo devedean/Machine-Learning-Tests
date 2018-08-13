@@ -2,9 +2,32 @@ import mglearn
 import matplotlib.pyplot as plt
 
 
+def NearestNeighborFaces():
+   from sklearn.neighbors import KNeighborsClassifier
+   from sklearn.model_selection import train_test_split
+   import numpy as np
+   from sklearn.datasets import fetch_lfw_people
+   
+   people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
+   
+   mask = np.zeros(people.target.shape, dtype=np.bool)
+   for target in np.unique(people.target):
+      mask[np.where(people.target == target)[0][:50]] = 1
+      
+   x_people = people.data[mask]
+   y_people = people.target[mask]   
+   #Split the data into training and test sets 
+   X_train, X_test, y_train, y_test = train_test_split(x_people, y_people, stratify=y_people, random_state=0)
+   #Build a KNeighorsClassifier using one neighbor
+   knn = KNeighborsClassifier(n_neighbors=1)
+   knn.fit(X_train, y_train)
+   print('Test set score of 1-nearest neighbors: {:.2f}'.format(knn.score(X_test, y_test)))
+
+
 def UnsupervisedLearningFaces():
    
    from sklearn.datasets import fetch_lfw_people
+   import numpy as np
    people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
    image_shape = people.images[0].shape
    
@@ -13,6 +36,26 @@ def UnsupervisedLearningFaces():
    for target, image, ax in zip(people.target, people.images, axes.ravel()):
       ax.imshow(image)
       ax.set_title(people.target_names[target])
+   
+   mask = np.zeros(people.target.shape, dtype=np.bool)
+   for target in np.unique(people.target):
+      mask[np.where(people.target == target)[0][:50]] = 1
+      
+   x_people = people.data[mask]
+   y_people = people.target[mask]
+   
+   #Scale the grayscale values to be between 0 and 1 instead of 0 and 255 for better numeric stability
+   x_people = x_people / 255
+      
+   #Count how often each target appears
+   counts = np.bincount(people.target)
+   #Print counts next to target names
+   for i, (count, name) in enumerate(zip(counts, people.target_names)):
+      print('{0:25} {1:3}'.format(name, count), end='   ')
+      if (i + 1) % 3 == 0:
+         print()
+         
+   
       
    plt.show()
    
@@ -309,4 +352,4 @@ def main():
     
    
 if __name__ == '__main__':
-   UnsupervisedLearningFaces()
+   NearestNeighborFaces()
