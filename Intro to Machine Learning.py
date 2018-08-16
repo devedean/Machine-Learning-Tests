@@ -40,6 +40,8 @@ def NearestNeighborFaces():
       ax.set_title('{}. component'.format((i + 1)))
       
    plt.show()
+   mglearn.plots.plot_pca_faces(X_train, X_test, image_shape)
+   plt.show()
    
 
 
