@@ -1,6 +1,13 @@
 import mglearn
 import matplotlib.pyplot as plt
 
+
+def VectorQuantization():
+
+ pass
+
+ 
+
 def HandWrittenDigits():
  from sklearn.datasets import load_digits
  from sklearn.decomposition import PCA
@@ -507,4 +514,4 @@ def main():
     
    
 if __name__ == '__main__':
- HandWrittenDigits()
+ VectorQuantization()
