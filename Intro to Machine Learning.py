@@ -26,15 +26,25 @@ def AgglomerativeClustering():
     plt.ylabel("Cluster distance")
     plt.show()
 
-def DBScan():
+def DB_Scan():
     from sklearn.cluster import DBSCAN
-    from sklearn.datasets import make_blobs
-    X, y = make_blobs(random_state=0, n_samples=12)
+    from sklearn.datasets import make_moons
+    from sklearn.preprocessing import StandardScaler
     
-    dbscan = DBScan()
-    clusters = dbscan.fit_predict(X)
-    print('CLusters memberships:\n{}'.format(clusters))
+    X, y = make_moons(n_samples=200, noise=0.05, random_state=0)
+    # rescale the data to zero mean and unit variance
+    scaler = StandardScaler()
+    scaler.fit(X)
+    X_scaled = scaler.transform(X)
+    dbscan = DBSCAN()
+    clusters = dbscan.fit_predict(X_scaled)
+    # plot the cluster assignments
+    plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=clusters, cmap=mglearn.cm2, s=60)
+    plt.xlabel("Feature 0")
+    plt.ylabel("Feature 1")
     
+    plt.show()
+        
 
 def HandWrittenDigits():
     from sklearn.datasets import load_digits
@@ -240,10 +250,10 @@ def UnsupervisedLearningFaces():
     #Count how often each target appears
     counts = np.bincount(people.target)
     #Print counts next to target names
-    for i, (count, name) in enumerate(zip(counts, people.target_names)):
-        print('{0:25} {1:3}'.format(name, count), end='   ')
-        if (i + 1) % 3 == 0:
-            print()
+    #for i, (count, name) in enumerate(zip(counts, people.target_names)):
+        #print('{0:25} {1:3}'.format(name, count), end='   ')
+        #if (i + 1) % 3 == 0:
+            #print()
 
 
 
@@ -542,4 +552,4 @@ def main():
 
 
 if __name__ == '__main__':
-    DBScan()
+    DB_Scan()
