@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+
+
 def Adjusted_Random_Index():
     
  from sklearn.metrics.cluster import adjusted_rand_score
@@ -11,8 +13,7 @@ def Adjusted_Random_Index():
  from sklearn.cluster import DBSCAN
  from sklearn.cluster import KMeans
  from sklearn.cluster import AgglomerativeClustering
- 
- 
+ from sklearn.metrics import silhouette_score
  
  X, y = make_moons(n_samples=200, noise=0.05, random_state=0)
  
@@ -22,9 +23,6 @@ def Adjusted_Random_Index():
  X_scaled = scaler.transform(X)
  fig, axes = plt.subplots(1, 4, figsize=(15, 3), subplot_kw={'xticks': (), 'yticks': ()})
  
- # make a list of algorithms to use
- algorithms = [KMeans(n_clusters=2), AgglomerativeClustering(n_clusters=2),DBSCAN()]
- 
  # create a random cluster assignment for reference
  random_state = np.random.RandomState(seed=0)
  random_clusters = random_state.randint(low=0, high=2, size=len(X))
@@ -33,15 +31,16 @@ def Adjusted_Random_Index():
  axes[0].scatter(X_scaled[:, 0], X_scaled[:, 1], c=random_clusters,cmap=mglearn.cm3, s=60)
  axes[0].set_title("Random assignment - ARI: {:.2f}".format(adjusted_rand_score(y, random_clusters)))
  
+ # make a list of algorithms to use
+ algorithms = [KMeans(n_clusters=2), AgglomerativeClustering(n_clusters=2),DBSCAN()] 
+ 
  for ax, algorithm in zip(axes[1:], algorithms):
-  
   # plot the cluster assignments and cluster centers
   clusters = algorithm.fit_predict(X_scaled)
   ax.scatter(X_scaled[:, 0], X_scaled[:, 1], c=clusters,cmap=mglearn.cm3, s=60)
-  ax.set_title("{} - ARI: {:.2f}".format(algorithm.__class__.__name__,
-  adjusted_rand_score(y, clusters)))
+  ax.set_title("{} : {:.2f}".format(algorithm.__class__.__name__, silhouette_score(X_scaled, clusters)))  
   
-  plt.show()
+ plt.show()
     
 
 
@@ -181,48 +180,7 @@ def ThreeSources():
 
 def FacesLargeCoefficient():
     import numpy as np
-    from sklearn.decomposition import NMF
-    from sklearn.datasets import fetch_lfw_people
-    from sklearn.model_selection import train_test_split
-
-    people = fetch_lfw_people(min_faces_per_person=20, resize=0.7)
-
-    image_shape = people.images[0].shape
-
-    mask = np.zeros(people.target.shape, dtype=np.bool)
-    for target in np.unique(people.target):
-        mask[np.where(people.target == target)[0][:50]] = 1
-
-    x_people = people.data[mask]
-    y_people = people.target[mask]   
-    #Split the data into training and test sets 
-    X_train, X_test, y_train, y_test = train_test_split(x_people, y_people, stratify=y_people, random_state=0)
-
-    nmf = NMF(n_components=15, random_state=0)
-    nmf.fit(X_train)
-    X_train_nmf = nmf.transform(X_train)
-    X_test_nmf = nmf.transform(X_test)
-    fix, axes = plt.subplots(3, 5, figsize=(15, 12),
-                          subplot_kw={'xticks': (), 'yticks': ()})
-    for i, (component, ax) in enumerate(zip(nmf.components_, axes.ravel())):
-        ax.imshow(component.reshape(image_shape))
-
-    compn = 3
-    # sort by 3rd component, plot first 10 images
-    inds = np.argsort(X_train_nmf[:, compn])[::-1]
-    fig, axes = plt.subplots(2, 5, figsize=(15, 8),
-                          subplot_kw={'xticks': (), 'yticks': ()})
-    for i, (ind, ax) in enumerate(zip(inds, axes.ravel())):
-        ax.imshow(X_train[ind].reshape(image_shape))
-    compn = 7
-    # sort by 7th component, plot first 10 images
-    inds = np.argsort(X_train_nmf[:, compn])[::-1]
-    fig, axes = plt.subplots(2, 5, figsize=(15, 8),
-                          subplot_kw={'xticks': (), 'yticks': ()})
-    for i, (ind, ax) in enumerate(zip(inds, axes.ravel())):
-        ax.imshow(X_train[ind].reshape(image_shape))
-
-        plt.show()
+    
 
 
 def NearestNeighborFaces():
@@ -596,4 +554,4 @@ def Linear_SVC():
 
 
 if __name__ == '__main__':
-    Adjusted_Random_Index()
+    FacesLargeCoefficient()
