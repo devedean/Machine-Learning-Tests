@@ -2,6 +2,75 @@ import mglearn
 import matplotlib.pyplot as plt
 
 
+def UnivariateNonlinearTransformations():
+ import numpy as np
+ from sklearn.linear_model import Ridge
+ from sklearn.model_selection import train_test_split
+ rnd = np.random.RandomState(0)
+ X_org = rnd.normal(size=(1000, 3))
+ w = rnd.normal(size=3)
+ X = rnd.poisson(10 * np.exp(X_org))
+ y = np.dot(X_org, w) 
+ print("Number of feature appearances:\n{}".format(np.bincount(X[:, 0])))
+ 
+ bins = np.bincount(X[:, 0])
+ 
+ X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+ score = Ridge().fit(X_train, y_train).score(X_test, y_test)
+ print("Test score: {:.3f}".format(score))
+ 
+ X_train_log = np.log(X_train + 1)
+ X_test_log = np.log(X_test + 1)
+ 
+ plt.hist(np.log(X_train_log[:, 0] + 1), bins=25, color='gray')
+ plt.ylabel("Number of appearances")
+ plt.xlabel("Value")
+ plt.show()
+ 
+ score = Ridge().fit(X_train_log, y_train).score(X_test_log, y_test)
+ print("Test score: {:.3f}".format(score))
+ 
+
+def Bins():
+
+ from sklearn.preprocessing import PolynomialFeatures
+ # include polynomials up to x ** 10:
+ # the default "include_bias=True" adds a feature that's constantly 1
+ poly = PolynomialFeatures(degree=10, include_bias=False)
+ poly.fit(X)
+ X_poly = poly.transform(X)
+
+ print("X_poly.shape: {}".format(X_poly.shape)) 
+ 
+
+def LinearRegressionComparison():
+ import numpy as np
+ from sklearn.linear_model import LinearRegression
+ from sklearn.tree import DecisionTreeRegressor
+ X, y = mglearn.datasets.make_wave(n_samples=100)
+ line = np.linspace(-3, 3, 1000, endpoint=False).reshape(-1, 1)
+ reg = DecisionTreeRegressor(min_samples_split=3).fit(X, y)
+ plt.plot(line, reg.predict(line), label="decision tree")
+ reg = LinearRegression().fit(X, y)
+ plt.plot(line, reg.predict(line), label="linear regression")
+ plt.plot(X[:, 0], y, 'o', c='k')
+ plt.ylabel("Regression output")
+ plt.xlabel("Input feature")
+ plt.legend(loc="best")
+ plt.show()
+ 
+
+def DummieDemo():
+ import pandas as pd
+ # create a DataFrame with an integer feature and a categorical string feature
+ demo_df = pd.DataFrame({'Integer Feature': [0, 1, 2, 1],
+  'Categorical Feature': ['socks', 'fox', 'socks', 'box']})
+ print(demo_df)
+ print(pd.get_dummies(demo_df))
+ demo_df['Integer Feature'] = demo_df['Integer Feature'].astype(str)
+ print(pd.get_dummies(demo_df, columns=['Integer Feature', 'Categorical Feature']))
+
+
 def OneHotEncoding():
  import pandas as pd
  from sklearn.linear_model import LogisticRegression
@@ -571,11 +640,8 @@ def main():
  plt.legend(['Class 0','Class 1','Class 2'])
 
  linear_svm = LinearSVC().fit(X,y)
-
-
-
  plt.show()
 
 
 if __name__ == '__main__':
- OneHotEncoding()
+ UnivariateNonlinearTransformations()
