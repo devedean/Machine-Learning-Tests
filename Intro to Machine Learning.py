@@ -1,6 +1,18 @@
 import mglearn
 import matplotlib.pyplot as plt
 
+#Could be perfect for a time series prediction --  learn from the past and predict for the future
+def ExpertKnowledge():
+ 
+ import pandas as pd
+ citibike = mglearn.datasets.load_citibike()
+ print("Citi Bike data:\n{}".format(citibike.head()))
+ 
+ # extract the target values (number of rentals)
+ y = citibike.values
+ # convert the time to POSIX time using "%s"
+ X = citibike.index.strftime("%s").astype("int").reshape(-1, 1)
+
 
 def UnivariateStatistics():
  from sklearn.datasets import load_breast_cancer
@@ -702,4 +714,4 @@ def main():
 
 
 if __name__ == '__main__':
- UnivariateStatistics()
+ ExpertKnowledge()
