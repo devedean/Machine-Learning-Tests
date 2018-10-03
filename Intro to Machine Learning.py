@@ -14,7 +14,7 @@ def ExpertKnowledge():
  
  print(citibike.index.strftime("%s"))
  
- # convert the time to POSIX time using "%s"
+ # convert the time to POSIX
  X_hour = citibike.index.astype("int64").values.reshape(-1, 1)
  
  X_hour_week = np.hstack([citibike.index.dayofweek.reshape(-1, 1),citibike.index.hour.reshape(-1, 1)])
