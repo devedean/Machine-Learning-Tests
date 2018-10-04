@@ -1,6 +1,17 @@
 import mglearn
 import matplotlib.pyplot as plt
 
+
+def CrossValidation():
+ from sklearn.model_selection import cross_val_score
+ from sklearn.datasets import load_iris
+ from sklearn.linear_model import LogisticRegression
+ iris = load_iris()
+ logreg = LogisticRegression()
+ scores = cross_val_score(logreg, iris.data, iris.target, cv=5)
+ print("Average cross-validation score: {:.2f}".format(scores.mean()))
+
+
 #Could be perfect for a time series prediction --  learn from the past and predict for the future
 def ExpertKnowledge():
  import numpy as np
@@ -750,4 +761,4 @@ def main():
 
 
 if __name__ == '__main__':
- ExpertKnowledge()
+ CrossValidation()
