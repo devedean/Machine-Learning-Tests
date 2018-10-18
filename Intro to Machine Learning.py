@@ -3,10 +3,16 @@ import matplotlib.pyplot as plt
 
 
 def CrossValidation():
- from sklearn.datasets import load_iris
- iris = load_iris()
- print("Iris labels:\n{}".format(iris.target))
+ from sklearn.model_selection import GroupKFold
+ # create synthetic dataset
+ X, y = make_blobs(n_samples=12, random_state=0)
+ # assume the first three samples belong to the same group,
+ # then the next four, etc.
+ groups = [0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3]
+ scores = cross_val_score(logreg, X, y, groups, cv=GroupKFold(n_splits=3))
+ print("Cross-validation scores:\n{}".format(scores))
 
+ 
 
 #Could be perfect for a time series prediction --  learn from the past and predict for the future
 def ExpertKnowledge():
