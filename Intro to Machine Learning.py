@@ -1,6 +1,63 @@
 import mglearn
 import matplotlib.pyplot as plt
 
+def ParameterGrid():
+ import numpy as np
+ from sklearn.datasets import load_iris
+ from sklearn.model_selection import train_test_split 
+ from sklearn.model_selection import GridSearchCV
+ from sklearn.svm import SVC
+ import pandas as pd
+ from IPython.display import display
+ import mglearn
+ 
+ iris = load_iris()
+ 
+ param_grid = [{'kernel': ['rbf'],'C': [0.001, 0.01, 0.1, 1, 10, 100],'gamma': [0.001, 0.01, 0.1, 1, 10, 100]},{'kernel': ['linear'],'C': [0.001, 0.01, 0.1, 1, 10, 100]}]
+ print("List of grids:\n{}".format(param_grid))
+ 
+ grid_search = GridSearchCV(SVC(), param_grid, cv=5)
+ 
+ X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, random_state=0) 
+ grid_search.fit(X_train, y_train)
+ 
+ print("Test set score: {:.2f}".format(grid_search.score(X_test, y_test)))
+ 
+ print("Best parameters: {}".format(grid_search.best_params_))
+ print("Best cross-validation score: {:.2f}".format(grid_search.best_score_)) 
+ 
+ print("Best estimator:\n{}".format(grid_search.best_estimator_))
+ # convert to DataFrame
+ results = pd.DataFrame(grid_search.cv_results_)
+ # show the first 5 rows
+ display(results.T)
+ 
+ scores = np.array(results.mean_test_score).reshape(6, 6)
+ # plot the mean cross-validation scores
+ mglearn.tools.heatmap(scores, xlabel='gamma', xticklabels=param_grid['gamma'],ylabel='C', yticklabels=param_grid['C'], cmap="viridis")
+ plt.show()
+ 
+ fig, axes = plt.subplots(1, 3, figsize=(13, 5))
+ param_grid_linear = {'C': np.linspace(1, 2, 6),
+  'gamma': np.linspace(1, 2, 6)}
+ param_grid_one_log = {'C': np.linspace(1, 2, 6),
+  'gamma': np.logspace(-3, 2, 6)}
+ param_grid_range = {'C': np.logspace(-3, 2, 6),
+  'gamma': np.logspace(-7, -2, 6)}
+ 
+ for param_grid, ax in zip([param_grid_linear, param_grid_one_log,param_grid_range], axes):
+  grid_search = GridSearchCV(SVC(), param_grid, cv=5)
+  grid_search.fit(X_train, y_train)
+  scores = grid_search.cv_results_['mean_test_score'].reshape(6, 6)
+  # plot the mean cross-validation scores
+  scores_image = mglearn.tools.heatmap(
+  scores, xlabel='gamma', ylabel='C', xticklabels=param_grid['gamma'],
+  yticklabels=param_grid['C'], cmap="viridis", ax=ax)
+  
+ plt.colorbar(scores_image, ax=axes.tolist())
+ 
+ plt.show()
+ 
 
 def SimpleGridSearch():
  from sklearn.svm import SVC
@@ -15,15 +72,21 @@ def SimpleGridSearch():
  best_score = 0
  for gamma in [0.001, 0.01, 0.1, 1, 10, 100]:
   for C in [0.001, 0.01, 0.1, 1, 10, 100]:
-   # for each combination of parameters, train an SVC
+  # for each combination of parameters,
+  # train an SVC
    svm = SVC(gamma=gamma, C=C)
-   svm.fit(X_train, y_train)
-   # evaluate the SVC on the test set
-   score = svm.score(X_valid, y_valid)
-   # if we got a better score, store the score and parameters
-   if score > best_score:
-    best_score = score
-    best_parameters = {'C': C, 'gamma': gamma}
+  # perform cross-validation
+  scores = cross_val_score(svm, X_trainval, y_trainval, cv=5)
+  # compute mean cross-validation accuracy
+  score = np.mean(scores)
+  # if we got a better score, store the score and parameters
+  if score > best_score:
+   best_score = score
+   best_parameters = {'C': C, 'gamma': gamma}
+ # rebuild a model on the combined training and validation set
+ svm = SVC(**best_parameters)
+ svm.fit(X_trainval, y_trainval)
+
 
  # rebuild a model on the combined training and validation set,
  # and evaluate it on the test set
@@ -796,4 +859,4 @@ def main():
 
 
 if __name__ == '__main__':
- SimpleGridSearch()
+ ParameterGrid()
