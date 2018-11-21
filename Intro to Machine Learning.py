@@ -2,6 +2,44 @@ import mglearn
 import matplotlib.pyplot as plt
 
 
+def WorkingWithTextData():
+ from sklearn.datasets import load_files
+ import numpy as np
+ from sklearn.feature_extraction.text import CountVectorizer
+ 
+ bards_words =["The fool doth think he is wise,","but the wise man knows himself to be a fool"] 
+ vect = CountVectorizer()
+ vect.fit(bards_words)
+
+ print("Vocabulary size: {}".format(len(vect.vocabulary_)))
+ print("Vocabulary content:\n {}".format(vect.vocabulary_))
+ 
+ bag_of_words = vect.transform(bards_words)
+ print("bag_of_words: {}".format(repr(bag_of_words)))
+ 
+ print("Dense representation of bag_of_words:\n{}".format(bag_of_words.toarray()))
+ 
+
+ #Train data
+ reviews_train = load_files("C:/Users/devedean/Documents/Python Projects/aclImdb/train/")
+ # load_files returns a bunch, containing training texts and training labels
+ text_train, y_train = reviews_train.data, reviews_train.target
+ text_train = [doc.replace(b"<br />", b" ") for doc in text_train]
+ 
+ print("type of text_train: {}".format(type(text_train)))
+ print("length of text_train: {}".format(len(text_train)))
+ print("text_train[1]:\n{}".format(text_train[1])) 
+ print("Samples per class (training): {}".format(np.bincount(y_train)))
+ 
+ #Test data
+ reviews_test = load_files("C:/Users/devedean/Documents/Python Projects/aclImdb/test/")
+ text_test, y_test = reviews_test.data, reviews_test.target
+ text_test = [doc.replace(b"<br />", b" ") for doc in text_test]
+ 
+ print("Number of documents in test data: {}".format(len(text_test)))
+ print("Samples per class (test): {}".format(np.bincount(y_test)))
+ 
+
 def AlgorithmChainsandPipelines():
  from sklearn.svm import SVC
  from sklearn.pipeline import Pipeline
@@ -927,4 +965,4 @@ def main():
 
 
 if __name__ == '__main__':
- AlgorithmChainsandPipelines()
+ WorkingWithTextData()
