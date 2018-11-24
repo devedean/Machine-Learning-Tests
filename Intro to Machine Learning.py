@@ -19,9 +19,10 @@ def WorkingWithTextData():
  
  print("Dense representation of bag_of_words:\n{}".format(bag_of_words.toarray()))
  
+ 
 
  #Train data
- reviews_train = load_files("C:/Users/devedean/Documents/Python Projects/aclImdb/train/")
+ reviews_train = load_files("D:/Downloads/aclImdb/train/")
  # load_files returns a bunch, containing training texts and training labels
  text_train, y_train = reviews_train.data, reviews_train.target
  text_train = [doc.replace(b"<br />", b" ") for doc in text_train]
@@ -31,8 +32,25 @@ def WorkingWithTextData():
  print("text_train[1]:\n{}".format(text_train[1])) 
  print("Samples per class (training): {}".format(np.bincount(y_train)))
  
+ vect = CountVectorizer().fit(text_train)
+ X_train = vect.transform(text_train)
+ print("X_train:\n{}".format(repr(X_train))) 
+ 
+ feature_names = vect.get_feature_names()
+ print("Number of features: {}".format(len(feature_names)))
+ print("First 20 features:\n{}".format(feature_names[:20]))
+ print("Features 20010 to 20030:\n{}".format(feature_names[20010:20030]))
+ print("Every 2000th feature:\n{}".format(feature_names[::2000]))
+ 
+ from sklearn.model_selection import cross_val_score
+ from sklearn.linear_model import LogisticRegression
+ scores = cross_val_score(LogisticRegression(), X_train, y_train, cv=5)
+ print("Mean cross-validation accuracy: {:.2f}".format(np.mean(scores)))
+ 
+ 
+ 
  #Test data
- reviews_test = load_files("C:/Users/devedean/Documents/Python Projects/aclImdb/test/")
+ reviews_test = load_files("D:/Downloads/aclImdb/test/")
  text_test, y_test = reviews_test.data, reviews_test.target
  text_test = [doc.replace(b"<br />", b" ") for doc in text_test]
  
