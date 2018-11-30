@@ -2,10 +2,39 @@ import mglearn
 import matplotlib.pyplot as plt
 
 
+def TextDataSpacy():
+ import spacy
+ import nltk
+ # load spacy's English-language models
+ en_nlp = spacy.load('en')
+ # instantiate nltk's Porter stemmer
+ stemmer = nltk.stem.PorterStemmer()
+ # define function to compare lemmatization in spacy with stemming in nltk
+
+def compare_normalization(doc):
+ # tokenize document in spacy
+ doc_spacy = en_nlp(doc)
+ # print lemmas found by spacy
+ print("Lemmatization:")
+ print([token.lemma_ for token in doc_spacy])
+ # print tokens found by Porter stemmer
+ print("Stemming:")
+ print([stemmer.stem(token.norm_.lower()) for token in doc_spacy])
+
+
+
+def StopWords():
+ from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+ print("Number of stop words: {}".format(len(ENGLISH_STOP_WORDS)))
+ print("Every 10th stopword:\n{}".format(list(ENGLISH_STOP_WORDS)[::10]))
+
+
 def WorkingWithTextData():
  from sklearn.datasets import load_files
  import numpy as np
  from sklearn.feature_extraction.text import CountVectorizer
+ from sklearn.model_selection import GridSearchCV
+ from sklearn.linear_model import LogisticRegression
  
  bards_words =["The fool doth think he is wise,","but the wise man knows himself to be a fool"] 
  vect = CountVectorizer()
@@ -22,7 +51,7 @@ def WorkingWithTextData():
  
 
  #Train data
- reviews_train = load_files("D:/Downloads/aclImdb/train/")
+ reviews_train = load_files("C:/Users/devedean/Documents/Python Projects/aclImdb/train/")
  # load_files returns a bunch, containing training texts and training labels
  text_train, y_train = reviews_train.data, reviews_train.target
  text_train = [doc.replace(b"<br />", b" ") for doc in text_train]
@@ -32,9 +61,25 @@ def WorkingWithTextData():
  print("text_train[1]:\n{}".format(text_train[1])) 
  print("Samples per class (training): {}".format(np.bincount(y_train)))
  
- vect = CountVectorizer().fit(text_train)
+ # Specifying stop_words="english" uses the built-in list.
+ # We could also augment it and pass our own. 
+ vect = CountVectorizer(min_df=5, stop_words="english").fit(text_train)
+
  X_train = vect.transform(text_train)
  print("X_train:\n{}".format(repr(X_train))) 
+ 
+ from sklearn.feature_extraction.text import TfidfVectorizer
+ from sklearn.pipeline import make_pipeline
+ param_grid = {'logisticregression__C': [0.001, 0.01, 0.1, 1, 10]}
+ grid = GridSearchCV(LogisticRegression(), param_grid, cv=5)
+ pipe = make_pipeline(TfidfVectorizer(min_df=5, norm=None),LogisticRegression())
+
+ grid = GridSearchCV(pipe, param_grid, cv=5)
+ grid.fit(text_train, y_train)
+ print("Best cross-validation score: {:.2f}".format(grid.best_score_))
+
+
+ 
  
  feature_names = vect.get_feature_names()
  print("Number of features: {}".format(len(feature_names)))
@@ -43,14 +88,14 @@ def WorkingWithTextData():
  print("Every 2000th feature:\n{}".format(feature_names[::2000]))
  
  from sklearn.model_selection import cross_val_score
- from sklearn.linear_model import LogisticRegression
+
  scores = cross_val_score(LogisticRegression(), X_train, y_train, cv=5)
  print("Mean cross-validation accuracy: {:.2f}".format(np.mean(scores)))
  
  
  
  #Test data
- reviews_test = load_files("D:/Downloads/aclImdb/test/")
+ reviews_test = load_files("C:/Users/devedean/Documents/Python Projects/aclImdb/test/")
  text_test, y_test = reviews_test.data, reviews_test.target
  text_test = [doc.replace(b"<br />", b" ") for doc in text_test]
  
